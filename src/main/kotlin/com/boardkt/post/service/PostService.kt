@@ -1,10 +1,14 @@
 package com.boardkt.post.service
 
+import com.boardkt.global.dto.PaginatedResponse
 import com.boardkt.post.dto.PostResponse
 import com.boardkt.post.entity.Post
 import com.boardkt.post.repository.PostJpaRepository
 import lombok.RequiredArgsConstructor
 import lombok.extern.slf4j.Slf4j
+import org.springframework.data.domain.PageRequest
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -25,5 +29,16 @@ class PostService(
     fun getSinglePost(id: Long): PostResponse {
         val getPost = postJpaRepository.findByIdOrNull(id)?: throw RuntimeException("해당 게시글을 찾을 수 없습니다.")
         return PostResponse(getPost.id!!, getPost.title, getPost.content)
+    }
+
+    @Transactional(readOnly = true)
+    fun getAllPostsToPage(pageable: Pageable): PaginatedResponse<PostResponse> {
+        return postJpaRepository.findAll(pageable)
+            .let { page ->
+                PaginatedResponse.from(
+                    page.map { post ->
+                        PostResponse(post.id!!, post.title, post.content)
+                    })
+            }
     }
 }
