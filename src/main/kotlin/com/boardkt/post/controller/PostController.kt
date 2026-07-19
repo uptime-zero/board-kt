@@ -47,4 +47,10 @@ class PostController(
         val patchedPost = postService.patchPost(id, request.title, request.content)
         return ResponseEntity.ok(patchedPost)
     }
+
+    @DeleteMapping("/posts/{id}")
+    fun deletePost(@PathVariable id: Long) : ResponseEntity<Unit> {
+        postService.deletePost(id)
+        return ResponseEntity.noContent().build()
+    }
 }

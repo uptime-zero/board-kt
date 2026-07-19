@@ -51,4 +51,9 @@ class PostService(
 
         return PostResponse(getPost.id!!, getPost.title, getPost.content)
     }
+
+    @Transactional
+    fun deletePost(id: Long) {
+        postJpaRepository.deleteById(id)
+    }
 }
