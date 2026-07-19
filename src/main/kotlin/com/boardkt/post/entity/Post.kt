@@ -10,4 +10,14 @@ class Post(
     var id: Long? = null,
     var title: String,
     var content: String,
-) : BaseEntity()
+) : BaseEntity() {
+    fun patch(title: String?, content: String?) {
+        if (!title.isNullOrBlank()) {
+            this.title = title
+        }
+
+        if (!content.isNullOrBlank()) {
+            this.content = content
+        }
+    }
+}
