@@ -54,6 +54,9 @@ class PostService(
 
     @Transactional
     fun deletePost(id: Long) {
+        if (!postJpaRepository.existsById(id)) {
+            throw RuntimeException("존재하지 않거나 이미 삭제된 게시글입니다.")
+        }
         postJpaRepository.deleteById(id)
     }
 }
