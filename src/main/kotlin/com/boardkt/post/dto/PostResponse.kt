@@ -9,7 +9,7 @@ class PostResponse(
     val content: String,
     val createdAt: String,
     val updatedAt: String,
-    val author: AuthUser
+    val author: String
 ) {
     companion object {
         fun from(post: Post, authUser: AuthUser): PostResponse {
@@ -19,7 +19,7 @@ class PostResponse(
                 post.content,
                 post.createdAt.toString(),
                 post.updatedAt.toString(),
-                authUser
+                authUser.nickname
             )
         }
     }

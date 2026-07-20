@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글</title>
+</head>
+<body>
+
+<header>
+    <a href="list.html">게시판</a>
+    <nav>
+        <a href="list.html">목록으로</a>
+    </nav>
+</header>
+
+<main>
+    <article>
+        <header>
+            <h1 id="post-title">게시글 제목</h1>
+            <div>
+                <span id="post-author">닉네임</span> |
+                <span id="post-created-date">2026.07.20</span> |
+                <span id="post-updated-date">2026.07.20</span>
+            </div>
+        </header>
+
+        <div id="post-content">
+            게시글 본문
+        </div>
+
+        <div id="owner-actions">
+            <a href="edit.html">수정</a>
+            <button type="button" id="delete-btn">삭제</button>
+        </div>
+    </article>
+</main>
+
+<script src="../js/api.js"></script>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get('id');
+
+    async function loadPost() {
+        try {
+            const post = await apiFetch(`/posts/${postId}`);
+
+            document.getElementById('post-title').textContent = post.title;
+            document.getElementById('post-content').textContent = post.content;
+            document.getElementById('post-author').textContent = post.author;
+            document.getElementById('post-created-date').textContent = new Date(post.createdAt).toLocaleDateString();
+            document.getElementById('post-updated-date').textContent = new Date(post.updatedAt).toLocaleDateString();
+        } catch (err) {
+            alert(err.message || '게시글을 불러오지 못했습니다.');
+            window.location.href = 'list.html';
+        }
+    }
+
+    loadPost();
+
+    loadPost();
+</script>
+</body>
+</html>
