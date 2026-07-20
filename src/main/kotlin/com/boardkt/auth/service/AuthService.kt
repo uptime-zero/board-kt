@@ -28,4 +28,15 @@ class AuthService(
         return AuthUser(newUser.id!!, newUser.nickname)
     }
 
+    @Transactional(readOnly = true)
+    fun login(userId: String, password: String): AuthUser {
+        val user = userJpaRepository.findByUserId(userId)
+            ?: throw RuntimeException("아이디 또는 비밀번호가 틀렸습니다.")
+
+        if (!passwordEncoder.matches(password, user.password)) {
+            throw RuntimeException("아이디 또는 비밀번호가 틀렸습니다.")
+        }
+
+        return AuthUser(user.id!!, user.nickname)
+    }
 }
