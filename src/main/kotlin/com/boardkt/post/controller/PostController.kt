@@ -1,5 +1,6 @@
 package com.boardkt.post.controller
 
+import com.boardkt.auth.dto.AuthUser
 import com.boardkt.global.dto.PaginatedResponse
 import com.boardkt.post.dto.CreatePostRequest
 import com.boardkt.post.dto.PatchPostRequest
@@ -10,18 +11,21 @@ import lombok.RequiredArgsConstructor
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.data.web.PageableDefault
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequiredArgsConstructor
 class PostController(
-    val postService: PostService
+    private val postService: PostService,
 ) {
     @PostMapping("/posts")
-    fun createPost(@Valid @RequestBody request: CreatePostRequest): ResponseEntity<PostResponse> {
-        val newPost = postService.createPost(request.title, request.content)
-        return ResponseEntity.status(201).body(newPost)
+    fun createPost(
+        @Valid @RequestBody request: CreatePostRequest,
+        @SessionAttribute("auth", required = true) authUser: AuthUser,
+    ): ResponseEntity<PostResponse> {
+        val newPost = postService.createPost(request.title, request.content, authUser)
+        return ResponseEntity.status(HttpStatus.CREATED).body(newPost)
     }
 
     @GetMapping("/posts/{id}")
@@ -33,7 +37,7 @@ class PostController(
     @GetMapping("/posts")
     fun getAllPostsToPage(
         @PageableDefault(page = 0, size = 10, sort = ["createdAt"], direction = Sort.Direction.DESC)
-        pageable: Pageable
+        pageable: Pageable,
     ): ResponseEntity<PaginatedResponse<PostResponse>> {
         val postsToPage = postService.getAllPostsToPage(pageable)
         return ResponseEntity.ok(postsToPage)
@@ -42,15 +46,19 @@ class PostController(
     @PatchMapping("/posts/{id}")
     fun patchPost(
         @PathVariable id: Long,
-        @RequestBody request: PatchPostRequest
+        @Valid @RequestBody request: PatchPostRequest,
+        @SessionAttribute(value = "auth", required = true) authUser: AuthUser,
     ): ResponseEntity<PostResponse> {
-        val patchedPost = postService.patchPost(id, request.title, request.content)
+        val patchedPost = postService.patchPost(id, request.title, request.content, authUser)
         return ResponseEntity.ok(patchedPost)
     }
 
     @DeleteMapping("/posts/{id}")
-    fun deletePost(@PathVariable id: Long) : ResponseEntity<Unit> {
-        postService.deletePost(id)
+    fun deletePost(
+        @PathVariable id: Long,
+        @SessionAttribute(value = "auth", required = true) authUser: AuthUser,
+    ): ResponseEntity<Void> {
+        postService.deletePost(id, authUser)
         return ResponseEntity.noContent().build()
     }
 }
