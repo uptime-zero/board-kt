@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시판</title>
+</head>
+<body>
+
+<header>
+    <a href="list.html">게시판</a>
+    <nav>
+        <span id="nav-nickname">닉네임</span>
+        <a href="#" id="nav-logout">로그아웃</a>
+        <a href="../auth/login.html" id="nav-login">로그인</a>
+    </nav>
+</header>
+
+<main>
+    <div>
+        <h1>게시글</h1>
+        <a href="write.html">글쓰기</a>
+    </div>
+
+    <ul id="post-list">
+        <li>
+            <a href="detail.html">게시글 제목</a>
+            <span>닉네임 | 2026.07.20</span>
+        </li>
+    </ul>
+
+    <nav id="pagination">
+        <a href="#">&laquo;</a>
+        <a href="#">1</a>
+        <a href="#">2</a>
+        <a href="#">3</a>
+        <a href="#">&raquo;</a>
+    </nav>
+</main>
+
+<script src="../js/api.js"></script>
+<script>
+    async function loadPosts() {
+        const data = await apiFetch("/posts", { method: "GET" });
+
+        const postList = document.getElementById("post-list");
+        postList.innerHTML = "";
+
+        if (data.data.length === 0) {
+            postList.innerHTML = "<li>아직 작성된 게시글이 없습니다.</li>";
+            return;
+        }
+
+        data.data.forEach(post => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+            <a href="detail.html?id=${post.id}">${post.title}</a>
+            <span>${post.author} | ${new Date(post.createdAt).toLocaleDateString()}</span>
+        `;
+            postList.appendChild(li);
+        });
+
+        renderPagination(data.currentPage, data.totalPages);
+    }
+
+    function renderPagination(current, totalPages) {
+        const paginationEl = document.getElementById("pagination");
+        paginationEl.innerHTML = "";
+
+        if (totalPages <= 1) return;
+
+        for (let i = 0; i < totalPages; i++) {
+            const a = document.createElement("a");
+            a.href = `list.html?page=${i}`;
+            a.textContent = i + 1;
+            paginationEl.appendChild(a);
+        }
+    }
+
+    loadPosts();
+</script>
+</body>
+</html>

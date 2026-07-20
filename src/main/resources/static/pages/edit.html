@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>글수정</title>
+</head>
+<body>
+
+<header>
+    <a href="list.html">게시판</a>
+    <nav>
+        <a href="detail.html">취소하고 돌아가기</a>
+    </nav>
+</header>
+
+<main>
+    <h1>글수정</h1>
+
+    <form id="edit-form">
+        <div id="form-error"></div>
+
+        <div>
+            <label for="title">제목</label>
+            <input type="text" id="title" name="title" value="기존 게시글 제목">
+        </div>
+
+        <div>
+            <label for="content">내용</label>
+            <textarea id="content" name="content">기존 게시글 내용</textarea>
+        </div>
+
+        <button type="submit">수정 완료</button>
+    </form>
+</main>
+
+<script src="../js/api.js"></script>
+<script>
+    const params = new URLSearchParams(window.location.search);
+    const postId = params.get("id");
+
+    if (!postId) {
+        window.location.href = "list.html";
+    }
+
+    async function loadPostIntoForm() {
+        try {
+            const post = await apiFetch(`/posts/${postId}`);
+            document.getElementById("title").value = post.title;
+            document.getElementById("content").value = post.content;
+        } catch (err) {
+            alert(err.message || "게시글을 불러오지 못했습니다.");
+            window.location.href = "list.html";
+        }
+    }
+
+    document.getElementById("edit-form").addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const title = document.getElementById("title").value.trim();
+        const content = document.getElementById("content").value.trim();
+
+        try {
+            await apiFetch(`/api/posts/${postId}`, {
+                method: "PATCH",
+                body: JSON.stringify({ title, content }),
+            });
+
+            window.location.href = `detail.html?id=${postId}`;
+        } catch (err) {
+            showFormError("form-error", err.message || "게시글 수정에 실패했습니다.");
+        }
+    });
+
+    loadPostIntoForm();
+</script>
+</body>
+</html>
